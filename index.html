@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop-Mobile Communication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #messageContainer {
+            height: 200px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: calc(100% - 80px);
+            padding: 5px;
+            margin-right: 10px;
+            resize: none;
+        }
+
+        button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="messageContainer"></div>
+    
+    <textarea id="messageInput" placeholder="Type your message..."></textarea>
+    <button id="sendMessageBtn">Send</button>
+    
+    <script>
+        const messageContainer = document.getElementById('messageContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+
+        const socket = new WebSocket('ws://localhost:3000'); // Update with your server address
+
+        socket.addEventListener('open', function (event) {
+            console.log('WebSocket connected');
+        });
+
+        socket.addEventListener('message', function (event) {
+            const message = event.data;
+            showMessage(message);
+        });
+
+        function showMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        sendMessageBtn.addEventListener('click', function () {
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                socket.send(message);
+                messageInput.value = '';
+                showMessage('You: ' + message);
+            }
+        });
+    </script>
+</body>
+</html>
+
